@@ -104,6 +104,6 @@ eas build -p android --profile preview
 Proudly developed for **CodeDay Kashmir 2026**.
 
 - **Head Developer**: Burhan Hamid
-- **Team Members**: Aqsa, Tabiya
+- **Team Members**: Aqsa, Tabiya, Farhan.
 
 *Built with ☕ and zero sleep.*
