@@ -199,7 +199,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
       {/* Footer */}
       <Animated.View style={[styles.footer, subtitleStyle]}>
         <Text style={styles.footerText}>CodeDay Kashmir 2026</Text>
-        <Text style={styles.footerSubtext}>Head Dev: Burhan Hamid | Team: Aqsa, Tabiya</Text>
+        <Text style={styles.footerSubtext}>Head Dev: Burhan Hamid | Team: Farhan, Aqsa, Tabiya</Text>
         <Text style={styles.footerTip}>Built with ☕ and zero sleep.</Text>
       </Animated.View>
     </View>

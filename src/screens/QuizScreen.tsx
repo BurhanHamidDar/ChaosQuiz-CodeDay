@@ -22,6 +22,15 @@ import ProceduralCrackedGlass from '../components/ProceduralCrackedGlass';
 import MomText from '../components/MomText';
 import FragileRepairModal from '../components/FragileRepairModal';
 import ApologyLetterModal from '../components/ApologyLetterModal';
+import RealityMeter from '../components/RealityMeter';
+import MockNotifications from '../components/MockNotifications';
+import RunningCat from '../components/RunningCat';
+import FakeErrorModal from '../components/FakeErrorModal';
+import FakeFBICall from '../components/FakeFBICall';
+import FBIScreenSmash from '../components/FBIScreenSmash';
+import FakeBSOD from '../components/FakeBSOD';
+import FakeUninstall from '../components/FakeUninstall';
+import CountdownOverlay from '../components/CountdownOverlay';
 import { COLORS } from '../constants/colors';
 import { QUESTIONS } from '../data/questions';
 import { triggerSuccessHaptic, triggerErrorHaptic, triggerChaosHaptic } from '../utils/haptics';
@@ -137,6 +146,18 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   const [lifelineUsed, setLifelineUsed] = useState(false);
   const [randomizedQuestions, setRandomizedQuestions] = useState<typeof QUESTIONS>([]);
 
+  // Chain Reaction States
+  const [stability, setStability] = useState(100);
+  const [notificationsTrigger, setNotificationsTrigger] = useState(0);
+  const [runningCatVisible, setRunningCatVisible] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorModalIndex, setErrorModalIndex] = useState(0);
+  const [countdownVisible, setCountdownVisible] = useState(false);
+  const [fbiCallVisible, setFbiCallVisible] = useState(false);
+  const [screenSmashVisible, setScreenSmashVisible] = useState(false);
+  const [bsodVisible, setBsodVisible] = useState(false);
+  const [uninstallVisible, setUninstallVisible] = useState(false);
+
   useEffect(() => {
     // Shuffle questions and pick exactly 5
     const shuffled = [...QUESTIONS].sort(() => 0.5 - Math.random());
@@ -150,6 +171,8 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   const questionRotation = useSharedValue(0);
   const questionTranslateY = useSharedValue(0);
   const mainContainerY = useSharedValue(0);
+  const shakeX = useSharedValue(0);
+  const shakeY = useSharedValue(0);
 
   const wrongCountRef = useRef(0);
 
@@ -178,37 +201,150 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     );
   }, [currentQ, randomizedQuestions]);
 
-  const triggerFragileReaction = (newWrongCount: number) => {
-    setCrackSeverity(newWrongCount);
+  const triggerCameraShake = () => {
+    shakeX.value = withSequence(
+      withTiming(-12, { duration: 40 }),
+      withTiming(12, { duration: 40 }),
+      withTiming(-10, { duration: 40 }),
+      withTiming(10, { duration: 40 }),
+      withTiming(-6, { duration: 40 }),
+      withTiming(6, { duration: 40 }),
+      withTiming(-3, { duration: 40 }),
+      withTiming(3, { duration: 40 }),
+      withTiming(0, { duration: 40 })
+    );
+    shakeY.value = withSequence(
+      withTiming(10, { duration: 40 }),
+      withTiming(-10, { duration: 40 }),
+      withTiming(8, { duration: 40 }),
+      withTiming(-8, { duration: 40 }),
+      withTiming(5, { duration: 40 }),
+      withTiming(-5, { duration: 40 }),
+      withTiming(2, { duration: 40 }),
+      withTiming(-2, { duration: 40 }),
+      withTiming(0, { duration: 40 })
+    );
+  };
+
+  const triggerChainReaction = (newWrongCount: number) => {
     triggerChaosHaptic();
 
-    // Play crack sounds
-    playSound(require('../../assets/sounds/shatter.mp3')); // The real glass breaking sound
-
-    // Play funny meme sounds alongside the destruction
-    playSound(require('../../assets/sounds/error.mp3')); // base hit
     if (newWrongCount === 1) {
-      setTimeout(() => playSound(require('../../assets/sounds/bruh.mp3')), 200);
-    }
-    if (newWrongCount === 2) {
-      setTimeout(() => playSound(require('../../assets/sounds/boom.mp3')), 100);
-      setTimeout(() => playSound(require('../../assets/sounds/emotional-damage.mp3')), 600);
-    }
-    if (newWrongCount >= 3) {
-      setTimeout(() => playSound(require('../../assets/sounds/fart.mp3')), 100);
-      setTimeout(() => playSound(require('../../assets/sounds/sad-violin.mp3')), 500);
-    }
+      // --- STRIKE 1 CHAIN REACTION ---
+      // 1. Button falls off the screen (takes 1000ms).
+      // 2. At 1000ms: Button hits bottom -> shake, sounds, cracks, stability drops
+      setTimeout(() => {
+        triggerCameraShake();
+        setStability(70);
+        setCrackSeverity(1);
+        playSound(require('../../assets/sounds/shatter.mp3'));
+        playSound(require('../../assets/sounds/error.mp3'));
+        setTimeout(() => playSound(require('../../assets/sounds/bruh.mp3')), 200);
 
-    // STRIKE 2: Question hangs loose
-    if (newWrongCount === 2) {
-      questionRotation.value = withSpring(15, { damping: 5 });
-      questionTranslateY.value = withSpring(40, { damping: 5 });
-    }
+        // 3. Shockwave: Running cat dashes (at 1500ms)
+        setTimeout(() => {
+          setRunningCatVisible(true);
+        }, 500);
+      }, 1000);
+    } 
+    else if (newWrongCount === 2) {
+      // --- STRIKE 2 CHAIN REACTION ---
+      // 1. Button falls off (takes 1000ms).
+      // 2. At 1000ms: Button hits bottom -> shake, sounds, cracks, stability drops
+      setTimeout(() => {
+        triggerCameraShake();
+        setStability(40);
+        setCrackSeverity(2);
+        playSound(require('../../assets/sounds/shatter.mp3'));
+        playSound(require('../../assets/sounds/boom.mp3'));
+        setTimeout(() => playSound(require('../../assets/sounds/emotional-damage.mp3')), 600);
 
-    // STRIKE 3: Total collapse
-    if (newWrongCount >= 3) {
-      mainContainerY.value = withTiming(height * 0.3, { duration: 1500, easing: Easing.bounce });
+        // 3. Question card tilts and sways
+        setTimeout(() => {
+          questionRotation.value = withSpring(15, { damping: 5 });
+          questionTranslateY.value = withSpring(40, { damping: 5 });
+
+          // 4. Glitch error modal pops up
+          setTimeout(() => {
+            setErrorModalIndex(Math.floor(Math.random() * 8));
+            setErrorModalVisible(true);
+          }, 800);
+        }, 300);
+      }, 1000);
+    } 
+    else if (newWrongCount >= 3) {
+      // --- STRIKE 3 CATASTROPHIC CHAIN REACTION ---
+      // 1. Button falls off (takes 1000ms).
+      // 2. At 1000ms: Massive impact -> shake, sag screen, sounds, stability to 0
+      setTimeout(() => {
+        triggerCameraShake();
+        setStability(0);
+        setCrackSeverity(3);
+        playSound(require('../../assets/sounds/shatter.mp3'));
+        playSound(require('../../assets/sounds/error.mp3'));
+        playSound(require('../../assets/sounds/fart.mp3'));
+        setTimeout(() => playSound(require('../../assets/sounds/sad-violin.mp3')), 500);
+
+        // 3. Screen sags down
+        mainContainerY.value = withTiming(height * 0.28, { duration: 1500, easing: Easing.bounce });
+
+        // 4. Once sagging finishes, overlay countdown
+        setTimeout(() => {
+          setCountdownVisible(true);
+        }, 1600);
+      }, 1000);
     }
+  };
+
+  // --- CHAIN REACTION STEP CALLBACKS ---
+  const handleCatComplete = () => {
+    setRunningCatVisible(false);
+    // Trigger mock notification
+    setNotificationsTrigger(n => n + 1);
+
+    // Go to next question after notification finishes
+    setTimeout(() => {
+      nextQuestion();
+    }, 3800);
+  };
+
+  const handleErrorModalDismiss = () => {
+    setErrorModalVisible(false);
+
+    // Staggered notifications
+    setTimeout(() => setNotificationsTrigger(n => n + 1), 100);
+    setTimeout(() => setNotificationsTrigger(n => n + 1), 1200);
+    setTimeout(() => setNotificationsTrigger(n => n + 1), 2400);
+
+    // Go to next question
+    setTimeout(() => {
+      nextQuestion();
+    }, 4500);
+  };
+
+  const handleCountdownComplete = () => {
+    setCountdownVisible(false);
+    setFbiCallVisible(true);
+  };
+
+  const handleFbiCallDismiss = () => {
+    setFbiCallVisible(false);
+    setScreenSmashVisible(true);
+  };
+
+  const handleScreenSmashComplete = () => {
+    setScreenSmashVisible(false);
+    setBsodVisible(true);
+  };
+
+  const handleBsodPress = () => {
+    setBsodVisible(false);
+    setUninstallVisible(true);
+  };
+
+  const handleUninstallComplete = () => {
+    setUninstallVisible(false);
+    setShowApologyModal(true);
   };
 
   const nextQuestion = () => {
@@ -253,11 +389,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
       wrongCountRef.current = newWrong;
       setWrongAnswers(newWrong);
       
-      triggerFragileReaction(newWrong);
-      
-      if (newWrong < 3) {
-        setTimeout(nextQuestion, 2000); // 2 seconds to admire the broken button
-      }
+      triggerChainReaction(newWrong);
     }
   };
 
@@ -265,6 +397,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     setShowApologyModal(false);
     
     // Magic repair!
+    setStability(100);
     setCrackSeverity(0);
     wrongCountRef.current = 0;
     setWrongAnswers(0);
@@ -283,7 +416,10 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   };
 
   const mainContainerStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: mainContainerY.value }],
+    transform: [
+      { translateY: mainContainerY.value + shakeY.value },
+      { translateX: shakeX.value }
+    ],
   }));
 
   const questionStyle = useAnimatedStyle(() => ({
@@ -324,6 +460,9 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
             <Animated.View style={[styles.progressBar, progressBarStyle]} />
           </View>
         </View>
+
+        {/* Reality stability meter */}
+        <RealityMeter stability={stability} chaosLevel={crackSeverity} />
 
         {/* Warning Badge */}
         {crackSeverity > 0 && crackSeverity < 3 && (
@@ -374,6 +513,34 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
         onSuccess={handleLifelineSuccess}
         onFail={handleLifelineFail}
       />
+
+      {/* Mock Notifications Dropdown */}
+      <MockNotifications chaosLevel={crackSeverity} triggerCount={notificationsTrigger} />
+
+      {/* Running Cat wrong answer effect */}
+      <RunningCat visible={runningCatVisible} onComplete={handleCatComplete} />
+
+      {/* Glitched system error dialog */}
+      <FakeErrorModal
+        visible={errorModalVisible}
+        onDismiss={handleErrorModalDismiss}
+        messageIndex={errorModalIndex}
+      />
+
+      {/* Catastrophic countdown */}
+      <CountdownOverlay visible={countdownVisible} onComplete={handleCountdownComplete} />
+
+      {/* FBI Incoming call */}
+      <FakeFBICall visible={fbiCallVisible} onDismiss={handleFbiCallDismiss} />
+
+      {/* FBI screen hammer smash */}
+      <FBIScreenSmash visible={screenSmashVisible} onComplete={handleScreenSmashComplete} />
+
+      {/* Blue Screen of Death */}
+      <FakeBSOD visible={bsodVisible} onPress={handleBsodPress} />
+
+      {/* App self-deletion progress bar */}
+      <FakeUninstall visible={uninstallVisible} onComplete={handleUninstallComplete} />
     </View>
   );
 };

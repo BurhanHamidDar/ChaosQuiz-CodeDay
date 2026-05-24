@@ -13,11 +13,12 @@ import ProceduralCrackedGlass from './ProceduralCrackedGlass';
 
 interface FBIScreenSmashProps {
   visible: boolean;
+  onComplete?: () => void;
 }
 
 const { width, height } = Dimensions.get('window');
 
-const FBIScreenSmash: React.FC<FBIScreenSmashProps> = ({ visible }) => {
+const FBIScreenSmash: React.FC<FBIScreenSmashProps> = ({ visible, onComplete }) => {
   const [smashed, setSmashed] = useState(false);
   
   const hammerRotation = useSharedValue(-90);
@@ -56,9 +57,11 @@ const FBIScreenSmash: React.FC<FBIScreenSmashProps> = ({ visible }) => {
     } catch (e) {
       // ignore
     }
-  };
 
-  if (!visible) return null;
+    if (onComplete) {
+      setTimeout(onComplete, 1200);
+    }
+  };
 
   const hammerStyle = useAnimatedStyle(() => ({
     opacity: hammerOpacity.value,
@@ -68,13 +71,15 @@ const FBIScreenSmash: React.FC<FBIScreenSmashProps> = ({ visible }) => {
     ],
   }));
 
+  if (!visible) return null;
+
   return (
     <View style={styles.overlay} pointerEvents="none">
       <Animated.View style={[styles.hammerContainer, hammerStyle]}>
         <Text style={styles.hammer}>🔨</Text>
       </Animated.View>
       
-      {smashed && <ProceduralCrackedGlass />}
+      {smashed && <ProceduralCrackedGlass severity={3} />}
     </View>
   );
 };

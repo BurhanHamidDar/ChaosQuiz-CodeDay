@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 
 interface FakeBSODProps {
   visible: boolean;
+  onPress?: () => void;
 }
 
-const FakeBSOD: React.FC<FakeBSODProps> = ({ visible }) => {
+const FakeBSOD: React.FC<FakeBSODProps> = ({ visible, onPress }) => {
   if (!visible) return null;
 
   return (
-    <View style={styles.container}>
+    <Pressable style={styles.container} onPress={onPress}>
       <Text style={styles.text}>
         A fatal exception 0E has occurred at 0028:C0011E36 in VXD VMM(01) + 00010E36. The current application will be terminated.
         {'\n\n'}
@@ -21,7 +22,7 @@ const FakeBSOD: React.FC<FakeBSODProps> = ({ visible }) => {
         {'\n\n'}
         Press any key to continue _
       </Text>
-    </View>
+    </Pressable>
   );
 };
 

@@ -4,9 +4,10 @@ import { COLORS } from '../constants/colors';
 
 interface FakeUninstallProps {
   visible: boolean;
+  onComplete?: () => void;
 }
 
-const FakeUninstall: React.FC<FakeUninstallProps> = ({ visible }) => {
+const FakeUninstall: React.FC<FakeUninstallProps> = ({ visible, onComplete }) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -16,9 +17,21 @@ const FakeUninstall: React.FC<FakeUninstallProps> = ({ visible }) => {
         setProgress(p => {
           if (p >= 99) {
             clearInterval(interval);
+            // Staggered finish to trigger humiliation contract
+            if (onComplete) {
+              setTimeout(onComplete, 1200);
+            }
             return 99;
           }
-          return p + Math.floor(Math.random() * 15);
+          const nextVal = p + Math.floor(Math.random() * 15);
+          if (nextVal >= 99) {
+            clearInterval(interval);
+            if (onComplete) {
+              setTimeout(onComplete, 1200);
+            }
+            return 99;
+          }
+          return nextVal;
         });
       }, 300);
       return () => clearInterval(interval);

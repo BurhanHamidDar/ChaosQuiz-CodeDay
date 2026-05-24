@@ -23,11 +23,17 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.burhanhamid.chaosquiz"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": []
+    "plugins": [],
+    "extra": {
+      "eas": {
+        "projectId": "80432290-eeea-4c00-bcd7-b6dd5bd2392b"
+      }
+    }
   }
 }
